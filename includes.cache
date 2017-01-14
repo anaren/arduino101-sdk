@@ -1,0 +1,102 @@
+[
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/cores/arduino"
+  },
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/variants/arduino_101"
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/uno101_test.ino.cpp",
+    "Include": "BLEAttribute.h",
+    "Includepath": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src"
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/uno101_test.ino.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/callbacks.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/helper.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/libs.cpp",
+    "Include": "Wire.h",
+    "Includepath": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/Wire/src"
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/libs.cpp",
+    "Include": "SPI.h",
+    "Includepath": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/SPI/src"
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/sketch/libs.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLEAttribute.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLECentral.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLECharacteristic.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLEDescriptor.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLEPeripheral.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLEService.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLETypedCharacteristics.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/BLEUuid.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/CurieBLE/src/internal/ble_client.c",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/Wire/src/Wire.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries/SPI/src/SPI.cpp",
+    "Include": "",
+    "Includepath": ""
+  }
+]

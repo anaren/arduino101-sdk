@@ -1,0 +1,10 @@
+{
+  "builtInLibrariesFolders": "",
+  "customBuildProperties": "",
+  "fqbn": "intel:arc32:arduino_101",
+  "hardwareFolders": "/home/kgillespie/share/arduino-1.8.1/hardware,/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware",
+  "otherLibrariesFolders": "/home/kgillespie/share/arduino-1.8.1/packages/Intel/hardware/intel/arc32/libraries",
+  "runtime.ide.version": "10600",
+  "sketchLocation": "/home/kgillespie/Arduino/uno101_test/uno101_test.ino",
+  "toolsFolders": "./packages,./tools-builder"
+}
