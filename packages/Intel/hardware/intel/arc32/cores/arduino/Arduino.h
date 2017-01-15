@@ -31,9 +31,9 @@
 #include "binary.h"
 //#include "itoa.h"
 
-#if ARDUINO < 10607
-#error IDE version incompatible with Arduino 101. Please upgrade to version 1.6.7 or newer.
-#endif
+// #if ARDUINO < 10607
+// #error IDE version incompatible with Arduino 101. Please upgrade to version 1.6.7 or newer.
+// #endif
 
 #ifdef __cplusplus
 extern "C"{
