@@ -1,4 +1,8 @@
 # corelibs-arduino101
+For Intel Community Support, product questions, or help troubleshooting, visit
+ICS: [https://communities.intel.com/community/tech/intel-curie](https://communities.intel.com/community/tech/intel-curie)
+
+|
 
 The contents of this repo is distributed through releases in Arduino IDE.    
 `Tools > Board > Boards Manager > Intel Curie Boards by Intel`
@@ -16,6 +20,10 @@ If you wish to use the latest **untested** changes, follow these instructions.
 5. Go to `packages/Intel/hardware/arc32/<version>/`
 6. Delete the content of the directory from step 5, and replace it with the
    content of the "corelibs-arduino101-master" folder in the zip from step 2.
+
+Note: your [tools](https://github.com/01org/intel-arduino-tools), found in
+`Arduino15/packages/Intel/tools/arduino101load/<version>/`, may also need to
+be updated to the latest snapshot.
 
 Future upgrades may fail since the internal contents were modified by hand. In
 order to recover, shut down the IDE, delete the entire `Arduino15` directory,

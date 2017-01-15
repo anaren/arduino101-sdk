@@ -653,8 +653,11 @@ class BMI160Class {
         void setInterruptLatch(uint8_t latch);
         void resetInterrupt();
 
+        bool gyroDataReady();
+        bool accelDataReady();
+
     protected:
-        virtual int serial_buffer_transfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt);
+        virtual int serial_buffer_transfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt) = 0;
 
     private:
         uint8_t reg_read (uint8_t reg);

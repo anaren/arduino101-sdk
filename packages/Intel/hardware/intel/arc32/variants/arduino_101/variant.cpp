@@ -22,6 +22,11 @@
 #include "cfw_platform.h"
 #include "platform.h"
 
+// Add for debug corelib
+#ifdef CONFIGURE_DEBUG_CORELIB_ENABLED
+#include <infra/log.h>
+#endif
+
 
 /*
  * Arduino 101
@@ -93,6 +98,9 @@ PinDescription g_APinDescription[]=
     {  3,   SOC_GPIO_32, SOC_GPIO,   SOC_GPIO_AON_BASE_ADDR, 3,     GPIO_MUX_MODE, INVALID, INVALID,         INVALID, INPUT_MODE }, // Arduino IO28
 } ;
 
+uint32_t pwmPeriod[] = {PWM_PERIOD, PWM_PERIOD/2, PWM_PERIOD/2, PWM_PERIOD};
+
+uint8_t pinmuxMode[];
 #ifdef __cplusplus
 }
 #endif
@@ -167,6 +175,7 @@ void variantGpioInit(void)
     for (uint8_t pin = 0; pin < NUM_DIGITAL_PINS; pin++) {
         PinDescription *p = &g_APinDescription[pin];
         SET_PIN_MODE(p->ulSocPin, p->ulPinMode);
+        pinmuxMode[pin] = GPIO_MUX_MODE;
     }
 }
 
@@ -234,8 +243,18 @@ void initVariant( void )
     variantGpioInit();
     variantPwmInit();
     variantAdcInit();
-
+    
+    //set RTC clock divider to 32768(1 Hz)
+    *SYS_CLK_CTL |= RTC_DIV_1HZ_MASK;
+    *SYS_CLK_CTL &= ~(1 << CCU_RTC_CLK_DIV_EN);
+    *SYS_CLK_CTL |= 1 << CCU_RTC_CLK_DIV_EN;
+    
     cfw_platform_init();
+    
+    // Add for debug corelib
+    #ifdef CONFIGURE_DEBUG_CORELIB_ENABLED
+    log_init();
+    #endif
 }
 
 #ifdef __cplusplus

@@ -27,11 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /* Standard Arduino PWM resolution */
 static int _writeResolution = 8;
 static int _readResolution = 10;
-
+uint32_t maxResolutionValue = 0xFF;
 
 void analogWriteResolution(int res)
 {
     _writeResolution = res;
+    maxResolutionValue = 0xFFFFFFFF >> (32-res);
 }
 
 void analogReadResolution(int res)
@@ -49,7 +50,7 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
          return value << (to-from);
 }
 
-void analogWrite(uint8_t pin, int val)
+void analogWrite(uint8_t pin, uint32_t val)
 {
     if (! digitalPinHasPWM(pin))
     {
@@ -75,20 +76,12 @@ void analogWrite(uint8_t pin, int val)
     } else {
         /* PWM for everything in between */
         PinDescription *p = &g_APinDescription[pin];
-        uint32_t hcnt = mapResolution(val, _writeResolution, PWM_RESOLUTION);
-        uint32_t lcnt = PWM_MAX_DUTY_CYCLE - hcnt;
+
         uint32_t offset;
-
-        /* For Arduino Uno compatibilty, we scale up frequency on certain pins */
-        hcnt >>= p->ulPwmScale;
-        lcnt >>= p->ulPwmScale;
-
-        /* Each count must be > 0 */
-        if (hcnt < PWM_MIN_DUTY_CYCLE)
-            hcnt = PWM_MIN_DUTY_CYCLE;
-        if (lcnt < PWM_MIN_DUTY_CYCLE)
-            lcnt = PWM_MIN_DUTY_CYCLE;
-
+        
+        uint32_t hcnt = (val/(float)maxResolutionValue) * pwmPeriod[p->ulPwmChan];
+        uint32_t lcnt = pwmPeriod[p->ulPwmChan] - hcnt;
+        
         /* Set the high count period (duty cycle) */
         offset = ((p->ulPwmChan * QRK_PWM_N_LCNT2_LEN) + QRK_PWM_N_LOAD_COUNT2);
         MMIO_REG_VAL(QRK_PWM_BASE_ADDR + offset) = hcnt;
@@ -97,15 +90,16 @@ void analogWrite(uint8_t pin, int val)
         offset = ((p->ulPwmChan * QRK_PWM_N_REGS_LEN) + QRK_PWM_N_LOAD_COUNT1);
         MMIO_REG_VAL(QRK_PWM_BASE_ADDR + offset) = lcnt;
 
-        if (p->ulPinMode != PWM_MUX_MODE) {
-            /* start the PWM output */
-            offset = ((p->ulPwmChan * QRK_PWM_N_REGS_LEN) + QRK_PWM_N_CONTROL);
-            SET_MMIO_MASK(QRK_PWM_BASE_ADDR + offset, QRK_PWM_CONTROL_ENABLE);
-
+        /* start the PWM output */
+        offset = ((p->ulPwmChan * QRK_PWM_N_REGS_LEN) + QRK_PWM_N_CONTROL);
+        SET_MMIO_MASK(QRK_PWM_BASE_ADDR + offset, QRK_PWM_CONTROL_ENABLE);
+        
+        if(pinmuxMode[pin] != PWM_MUX_MODE)
+        {
             /* Disable pull-up and set pin mux for PWM output */
             SET_PIN_PULLUP(p->ulSocPin, 0);
             SET_PIN_MODE(p->ulSocPin, PWM_MUX_MODE);
-            p->ulPinMode = PWM_MUX_MODE;
+            pinmuxMode[pin] = PWM_MUX_MODE;
         }
     }
 }
@@ -120,11 +114,8 @@ uint32_t analogRead(uint32_t pin)
     PinDescription *p = &g_APinDescription[pin];
 
     /* Disable pull-up and set pin mux for ADC output */
-    if (p->ulPinMode != ADC_MUX_MODE) {
-       SET_PIN_MODE(p->ulSocPin, ADC_MUX_MODE);
-       p->ulPinMode = ADC_MUX_MODE;
-       SET_PIN_PULLUP(p->ulSocPin,0);
-    }
+    SET_PIN_MODE(p->ulSocPin, ADC_MUX_MODE);
+    SET_PIN_PULLUP(p->ulSocPin,0);
 
     /* Reset sequence pointer */
     SET_ARC_MASK(ADC_CTRL, ADC_SEQ_PTR_RST);
@@ -143,6 +134,13 @@ uint32_t analogRead(uint32_t pin)
 
     return mapResolution(val, ADC_RESOLUTION, _readResolution);
 
+}
+
+void analogWriteFrequency(uint8_t pin, uint32_t freq)
+{
+    //convert frequency to period in clock ticks
+    PinDescription *p = &g_APinDescription[pin];
+    pwmPeriod[p->ulPwmChan] = F_CPU / freq;
 }
 
 #ifdef __cplusplus

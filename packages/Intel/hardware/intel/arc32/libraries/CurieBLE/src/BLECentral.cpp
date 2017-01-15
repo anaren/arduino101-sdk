@@ -1,103 +1,61 @@
 /*
- * Copyright (c) 2015 Intel Corporation.  All rights reserved.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+  BLE Central API (deprecated)
+  Copyright (c) 2016 Arduino LLC. All right reserved.
 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
 
-#include "BLECentral.h"
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
 
-#include "BLEPeripheral.h"
+#include "CurieBLE.h"
 
-
-BLECentral::BLECentral(BLEPeripheral* peripheral) :
-  _peripheral(peripheral)
+BLECentral::BLECentral(BLEDevice& device) :
+  _device(&device)
 {
-    clearAddress();
+
 }
 
-BLECentral::operator bool() const {
-    ble_addr_t zero;
-
-    memset(&zero, 0, sizeof(zero));
-
-    return (memcmp(&_address, &zero, sizeof(_address)) != 0);
+bool BLECentral::connected(void)
+{
+    return _device.connected();
 }
 
-bool
-BLECentral::operator==(const BLECentral& rhs) const {
-    return (memcmp(&_address, &rhs._address, sizeof(_address)) == 0);
+const char* BLECentral::address(void) const
+{
+    return _device.address().c_str();
 }
 
-bool
-BLECentral::operator!=(const BLECentral& rhs) const {
-    return !(*this == rhs);
+bool BLECentral::disconnect(void)
+{
+    return _device.disconnect();
 }
 
-bool
-BLECentral::connected() {
-    poll();
-
-    return (*this && *this == _peripheral->central());
+void BLECentral::poll(void)
+{
+  _device.poll();
 }
 
-const char* 
-BLECentral::address() const {
-    static char address[18];
-
-    String addressStr = "";
-
-    for (int i = 5; i >= 0; i--) {
-        unsigned char a = _address.addr[i];
-
-        if (a < 0x10) {
-            addressStr += "0";
-        }
-
-        addressStr += String(a, 16);
-
-        if (i > 0) {
-            addressStr += ":";
-        }
-    }
-
-    strcpy(address, addressStr.c_str());
-
-    return address;
+BLECentral::operator bool(void) const
+{
+  return _device;
 }
 
-void
-BLECentral::poll() {
-    _peripheral->poll();
+bool BLECentral::operator==(const BLECentral& rhs) const
+{
+  return (_device == rhs._device);
 }
 
-bool
-BLECentral::disconnect() {
-    if (connected()) {
-        return _peripheral->disconnect();
-    }
-
-    return false;
-}
-
-void
-BLECentral::setAddress(ble_addr_t address) {
-    _address = address;
-}
-
-void
-BLECentral::clearAddress() {
-    memset(&_address, 0x00, sizeof(_address));
+bool BLECentral::operator!=(const BLECentral& rhs) const
+{
+  return (_device != rhs._device);
 }

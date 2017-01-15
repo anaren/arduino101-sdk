@@ -18,17 +18,18 @@
 #define _RING_BUFFER_
 
 #include <stdint.h>
+#include "dccm/dccm_alloc.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which head is the index of the location
 // to which to write the next incoming character and tail is the index of the
 // location from which to read.
-#define SERIAL_BUFFER_SIZE 256
+#define UART_BUFFER_SIZE 64
 
 class RingBuffer
 {
 public:
-	uint8_t _aucBuffer[SERIAL_BUFFER_SIZE] ;
+	uint8_t *_aucBuffer;
 	int _iHead ;
 	int _iTail ;
 	bool _buffer_overflow ;

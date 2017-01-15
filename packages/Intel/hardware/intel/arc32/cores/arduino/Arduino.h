@@ -26,12 +26,14 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "pins_arduino.h"
+
 #include "binary.h"
 //#include "itoa.h"
 
-// #if ARDUINO < 10607
-// #error IDE version incompatible with Arduino 101. Please upgrade to version 1.6.7 or newer.
-// #endif
+#if ARDUINO < 10607
+#error IDE version incompatible with Arduino 101. Please upgrade to version 1.6.7 or newer.
+#endif
 
 #ifdef __cplusplus
 extern "C"{
@@ -60,7 +62,7 @@ typedef void (*voidFuncPtr)( void ) ;
 
 /* Types used for the tables below */
 /* TODO - consider using smaller types to optimise storage space */
-typedef struct _PinDescription
+typedef const struct _PinDescription
 {
         uint32_t                ulGPIOId;               // GPIO port pin
         uint32_t                ulGPIOPort;             // GPIO port ID
@@ -95,6 +97,10 @@ typedef struct _PinDescription
 /* Pins table to be instanciated into variant.cpp */
 extern PinDescription g_APinDescription[] ;
 
+extern uint32_t pwmPeriod[4];
+
+extern uint8_t pinmuxMode[NUM_DIGITAL_PINS];
+
 #ifdef __cplusplus
 } // extern "C"
 
@@ -115,5 +121,6 @@ extern PinDescription g_APinDescription[] ;
 #include "wiring_analog.h"
 #include "wiring_shift.h"
 #include "WInterrupts.h"
+#include "dccm/dccm_alloc.h"
 
 #endif // Arduino_h

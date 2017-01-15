@@ -622,6 +622,7 @@ void uart_int_connect(int which,	   /* UART to which to connect */
 		      )
 {
 	interrupt_connect((unsigned int)uart[which].irq, isr);
+    interrupt_priority_set ((int)uart[which].irq, uart[which].intPri);
 	interrupt_enable((unsigned int)uart[which].irq);
 	/* set the Host Processor Interrupt Routing Mask */
 	SOC_UNMASK_INTERRUPTS(INT_UART_0_MASK + (which * UART_REG_ADDR_INTERVAL));

@@ -33,7 +33,11 @@
 
 /*************************    MEMORY   *************************/
 
+
+#if 0
+
 #ifdef TRACK_ALLOCS
+#include "infra/log.h"
 int alloc_count = 0;
 #endif
 
@@ -45,6 +49,7 @@ void * cfw_alloc(int size, OS_ERR_TYPE * err) {
         (*(int*) ptr) = size;
 #ifdef TRACK_ALLOCS
         alloc_count++;
+        pr_info(0, "alloc_count - %d", alloc_count);
 #endif
         interrupt_unlock(flags);
         return ptr;
@@ -56,6 +61,7 @@ void cfw_free(void * ptr, OS_ERR_TYPE * err) {
     int flags = interrupt_lock();
 #ifdef TRACK_ALLOCS
     alloc_count--;
+    pr_info(0, "alloc_countf - %d", alloc_count);
 #endif
     free(ptr);
     interrupt_unlock(flags);
@@ -69,6 +75,7 @@ OS_ERR_TYPE bfree(void *ptr) {
 	cfw_free(ptr, NULL);
 	return E_OS_OK;
 }
+#endif
 
 /*************************    QUEUES   *************************/
 
@@ -128,7 +135,8 @@ void queue_delete(T_QUEUE queue, OS_ERR_TYPE* err) {
     q_t * q = (q_t*) queue;
     while((element = list_get(&q->lh)) != NULL)
         list_remove(&q->lh, element);
-    cfw_free(q, NULL);
+    //cfw_free(q, NULL);
+    q->used = 0;
 }
 
 /*************************    MUTEXES   *************************/

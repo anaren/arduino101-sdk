@@ -1,85 +1,171 @@
 /*
- * Copyright (c) 2015 Intel Corporation.  All rights reserved.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+  BLE Descriptor API
+  Copyright (c) 2016 Arduino LLC. All right reserved.
 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
 
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+#include <errno.h>
+
+#include "./internal/BLEAttribute.h"
 #include "BLEDescriptor.h"
+#include "./internal/BLEUtils.h"
+#include "./internal/BLEDescriptorImp.h"
 
-#include "internal/ble_client.h"
-
-BLEDescriptor::BLEDescriptor(const char* uuid, const unsigned char value[], unsigned short valueLength) :
-    BLEAttribute(uuid, BLETypeDescriptor)
+BLEDescriptor::BLEDescriptor():
+    _properties(0),
+    _value_size(0),
+    _value(NULL)
 {
-    if (valueLength > BLE_MAX_ATTR_DATA_LEN) {
-        valueLength = BLE_MAX_ATTR_DATA_LEN;
+    memset(_uuid_cstr, 0, sizeof (_uuid_cstr));
+}
+    
+BLEDescriptor::BLEDescriptor(BLEDescriptorImp* descriptorImp, 
+                             const BLEDevice *bleDev):
+    _bledev(bleDev),
+    _value_size(0),
+    _value(NULL)
+{
+    _properties = descriptorImp->properties();
+    memset(_uuid_cstr, 0, sizeof (_uuid_cstr));
+    BLEUtils::uuidBT2String(descriptorImp->bt_uuid(), _uuid_cstr);
+    
+    _value_size = descriptorImp->valueSize();
+    _value = (unsigned char*)malloc(_value_size);
+    if (NULL == _value)
+    {
+        memcpy(_value, descriptorImp->value(), _value_size);
     }
-    _value_length = valueLength;
-    _value = (unsigned char*)malloc(_value_length);
-
-    memcpy(_value, value, _value_length);
+    else
+    {
+        errno = ENOMEM;
+    }
 }
 
-BLEDescriptor::~BLEDescriptor() {
-    if (_value) {
+BLEDescriptor::BLEDescriptor(const char* uuid, 
+                             const unsigned char value[], 
+                             unsigned short valueLength):
+    _bledev()
+{
+    bt_uuid_128_t uuid_tmp;
+    memset(_uuid_cstr, 0, sizeof (_uuid_cstr));
+    BLEUtils::uuidString2BT(uuid, (bt_uuid_t *)&uuid_tmp);
+    BLEUtils::uuidBT2String((const bt_uuid_t *)&uuid_tmp, _uuid_cstr);
+    
+    _bledev.setAddress(*BLEUtils::bleGetLoalAddress());
+    
+    _value_size = valueLength > BLE_MAX_ATTR_LONGDATA_LEN ? BLE_MAX_ATTR_LONGDATA_LEN : valueLength;
+    _value = (unsigned char*)malloc(_value_size);
+    if (NULL == _value)
+    {
+        memcpy(_value, value, _value_size);
+    }
+    else
+    {
+        errno = ENOMEM;
+    }
+}
+
+BLEDescriptor::BLEDescriptor(const char* uuid, 
+                             const char* value):
+     BLEDescriptor(uuid, (const unsigned char*)value, strlen(value))
+{}
+
+BLEDescriptor::BLEDescriptor(const BLEDescriptor& rhs)
+{
+    _value = (unsigned char*)malloc(rhs._value_size);  // Sid. KW: allocate memory for _value, not local
+    if (_value) 
+    {
+        memcpy(_value, rhs._value, rhs._value_size);
+        _value_size = rhs._value_size;
+    }
+    else
+    {
+        _value_size = 0;
+        errno = ENOMEM;
+    }
+    memcpy(_uuid_cstr, rhs._uuid_cstr, sizeof(_uuid_cstr));
+    _properties = rhs._properties;
+    _bledev = BLEDevice(&rhs._bledev);
+}
+
+BLEDescriptor& BLEDescriptor::operator= (const BLEDescriptor& rhs)
+{
+    if (this != &rhs)
+    {
+        memcpy(_uuid_cstr, rhs._uuid_cstr, sizeof(_uuid_cstr));
+        _properties = rhs._properties;
+        _bledev = BLEDevice(&rhs._bledev);
+        if (_value_size < rhs._value_size)
+        {
+            _value_size = rhs._value_size;
+            
+            if (NULL != _value)
+                free(_value);
+            _value = (unsigned char*)malloc(_value_size);
+        }
+        
+        if (NULL != _value)
+        {
+            memcpy(_value, rhs._value, rhs._value_size);
+        }
+        else
+        {
+            _value_size = 0;
+            errno = ENOMEM;
+        }
+    }
+    return *this;
+}
+
+BLEDescriptor::~BLEDescriptor()
+{
+    if (_value)
+    {
         free(_value);
         _value = NULL;
     }
 }
 
-BLEDescriptor::BLEDescriptor(const char* uuid, const char* value) :
-    BLEDescriptor(uuid, (const uint8_t*)value, strlen(value))
+const char* BLEDescriptor::uuid() const
 {
+    return _uuid_cstr;
 }
 
-const unsigned char*
-BLEDescriptor::BLEDescriptor::value() const
+const byte* BLEDescriptor::value() const
 {
     return _value;
 }
 
-unsigned short
-BLEDescriptor::valueLength() const
+int BLEDescriptor::valueLength() const
 {
-    return _value_length;
+    return _value_size;
 }
 
-unsigned char
-BLEDescriptor::operator[] (int offset) const
+BLEDescriptor::operator bool() const
 {
-    return _value[offset];
+    return (strlen(_uuid_cstr) > 3);
 }
 
-bool
-BLEDescriptor::add(uint16_t serviceHandle)
+unsigned char BLEDescriptor::properties() const
 {
-    bt_uuid uuid = btUuid();
-    struct ble_gatts_descriptor desc;
-    uint16_t handle = 0;
-
-    memset(&desc, 0, sizeof(desc));
-
-    desc.p_uuid = &uuid;
-
-    desc.p_value = _value;
-    desc.length = _value_length;
-
-    // this class only supports read-only descriptors
-    desc.perms.rd = GAP_SEC_MODE_1 | GAP_SEC_LEVEL_1;
-    desc.perms.wr = GAP_SEC_NO_PERMISSION;
-
-    return (ble_client_gatts_add_descriptor(serviceHandle, &desc, &handle) == BLE_STATUS_SUCCESS); 
+    return _properties;
 }
+
+
+int BLEDescriptor::valueSize() const
+{
+    return _value_size;
+}
+
